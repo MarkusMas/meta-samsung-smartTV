@@ -43,7 +43,7 @@
   },
   "template":{
     "name":"smartTV (2016)",
-    "dynamicname":"DYNAMIK_INST_START DYNAMIK \"Samsung \" + JSON.parse(\"$Result\").model_name + \" \" + JSON.parse(\"$Result\").ip DYNAMIK_INST_END",
+    "dynamicname":"DYNAMIK_INST_START DYNAMIK \"Samsung \" + JSON.parse(\"$Result\").model_name DYNAMIK_INST_END",
     "dynamicid":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip DYNAMIK_INST_END",
     "variables":{
       "DeviceIP":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip   DYNAMIK_INST_END",
