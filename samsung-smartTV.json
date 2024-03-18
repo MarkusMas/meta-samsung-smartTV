@@ -1,13 +1,12 @@
 { "name":"smartTV (2016)", 
   "manufacturer":"Samsung",
   "type":"TV",
-  "version":1,
+  "version":2,
   "compatible-meta":"1.0.5",
   "persistedvariables":{
     "ToInitiate":true,
     "IsRegistered": false,
-    "MyDevices":"[]",
-    "RegistrationCode":""
+    "MyDevices":"[]"
   },
 	"variables":{
 		"NewDevice":"[]",
@@ -36,16 +35,15 @@
       "queryresult" : "$.device",
       "evalwrite":[
         {"variable":"NewDevice",    "value":"DYNAMIK let device = $NewDevice; device.model_name = JSON.parse(\"$Result\").modelName; device.mac = JSON.parse(\"$Result\").wifiMac; device.name = JSON.parse(\"$Result\").name; JSON.stringify(device); "},
-        {"variable":"MyDevices",    "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "},
-        {"variable":"ToInitiate",   "value":"DYNAMIK let device = $NewDevice; device.model_name != undefined ? false : true"} 
+        {"variable":"MyDevices",    "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "}
       ],			
       "evaldo":[{"test":"DYNAMIK let device = $NewDevice; device.model_name != undefined","then":"__PERSIST", "or":""}]}
       ],
-      "command": {"type": "static", "command": "$MyDevices", "queryresult": "$.*"}    
+      "command": {"type": "static", "command": "DYNAMIK let device = $NewDevice; device.model_name != undefined ? device : undefined", "queryresult": "$.*"}    
   },
   "template":{
     "name":"smartTV (2016)",
-    "dynamicname":"DYNAMIK_INST_START DYNAMIK \"Samsung \" + JSON.parse(\"$Result\").model_name DYNAMIK_INST_END",
+    "dynamicname":"DYNAMIK_INST_START DYNAMIK \"Samsung \" + JSON.parse(\"$Result\").model_name + \" \" + JSON.parse(\"$Result\").ip DYNAMIK_INST_END",
     "dynamicid":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip DYNAMIK_INST_END",
     "variables":{
       "DeviceIP":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip   DYNAMIK_INST_END",
@@ -54,6 +52,7 @@
       "RemoteName":"DYNAMIK_INST_START DYNAMIK let name = \"meta Samsung SmartTV\"; name = Buffer.from(name); name = name.toString(\"Base64\") DYNAMIK_INST_END",
       "IconBaseUrl":"https://raw.githubusercontent.com/MarkusMas/meta-samsung-smartTV/master/icons",
       "PowerOnStatus":false,
+      "WebSocketIsConnected":false,
       "AsyncMessage":"",
       "AppIterator":0,
       "RequestedApps":false,
@@ -77,15 +76,16 @@
       "SamsungListener": {"type":"webSocket", "command":{"connection":"ws://$DeviceIP:$DevicePort/api/v2/channels/samsung.remote.control?name=$RemoteName", "message": "message"}, "queryresult" : "",
         "evalwrite":[
           {"variable":"AsyncMessage", "value":"DYNAMIK \"$Result\" "},
+          {"variable":"WebSocketIsConnected", "value":"DYNAMIK let res; if ($AsyncMessage.event == \"ms.channel.connect\") {res = $AsyncMessage.data; res.id.length == 36} else {$WebSocketIsConnected}"},
           {"variable":"Apps", "value":"DYNAMIK let res; if ($AsyncMessage.event == \"ed.installedApp.get\") {res = $AsyncMessage.data; let NewApps = res.data; let OldApps = $Apps; let sortedApps = OldApps.filter(oldApp => NewApps.some(newApp => newApp.appId === oldApp.appId)).map(oldApp => NewApps.find(newApp => newApp.appId === oldApp.appId));/*console.log('Sorted Apps:', '\\n', sortedApps);*/ NewApps = sortedApps.concat(NewApps.filter(newApp => !OldApps.find(oldApp => oldApp.appId === newApp.appId)));/*console.log('New Apps:', '\\n', NewApps);*/ let mergedApps = NewApps.map(newApp => ({...newApp, visible: OldApps.find(oldApp => oldApp.appId === newApp.appId)?.visible ?? true}));console.log('Merged Apps:', '\\n', mergedApps); res=JSON.stringify(mergedApps)} else {res=JSON.stringify($Apps)}; res; "},
           {"variable":"Base64Icon", "value":"DYNAMIK let res; if ($AsyncMessage.event == \"ed.apps.icon\") {res = $AsyncMessage.data; res=res.imageBase64; res=JSON.stringify(res)} else {res = \"undefined\"}; res;"},
           {"variable":"WriteIcon", "value":"DYNAMIK const fs = require(\"fs\"); if ($AsyncMessage.event == \"ed.apps.icon\") {let AppId = ''; let IconPathSplit = $AsyncMessage.data.iconPath.split('/'); if (IconPathSplit[IconPathSplit.length -2]=='LocalIcon') {AppId = IconPathSplit[IconPathSplit.length -1].split('.').slice(0,-1).join('.')} else {AppId = IconPathSplit[IconPathSplit.length -2]}; let AppIterator = $Apps.findIndex(i => i.appId === AppId); let icon = $Base64Icon; let path = \"$IconServerRoot\/$IconServerDriverFolder\/$DeviceIP\/\"; const buffer = Buffer.from(icon, \"base64\"); fs.mkdirSync(path, {recursive:true}); fs.writeFileSync(path + $Apps[Number(AppIterator)].name.replace(/\\s/g, \"_\").replace(/–/g, \"-\") + \".png\", buffer); \"Icon saved: #\" + Number(AppIterator) + \" \" + $Apps[Number(AppIterator)].name.replace(/\\s/g, \"_\").replace(/–/g, \"-\") + \".png\"} else {\"No Icon saved\"} "},
           {"variable":"AppIterator", "value":"DYNAMIK ($AsyncMessage.event == \"ed.apps.icon\") ? Number($AppIterator)+1 : $AppIterator"}
         ],
         "evaldo":[
-          {"test":"DYNAMIK $RequestedApps == false","then":"__GETAPPS", "or":""},
+          {"test":"DYNAMIK $RequestedApps == false && $WebSocketIsConnected == true","then":"__GETAPPS", "or":""},
           {"test":"DYNAMIK if ($IconServerEnabled == false || $RequestedApps == false) {false} else {let apps = $Apps; let bol = Number($AppIterator) < apps.length; bol}","then":"__GETB64ICON", "or":""},
-          {"test":"DYNAMIK if ($IconServerStatus == true) {false} else {let apps = $Apps; let bol = Number($AppIterator) == apps.length; bol}","then":"__CHECKICONSERVER", "or":""}
+          {"test":"DYNAMIK if ($IconServerStatus == true || $Apps.length == 0) {false} else {let apps = $Apps; let bol = Number($AppIterator) == apps.length; bol}","then":"__CHECKICONSERVER", "or":""}
         ]
       }
     },
@@ -93,7 +93,7 @@
       "POWER ON":       {"label":"", "type":"wol", "command":"$DeviceMac", "evaldo":[{"test":true, "then":"__INITIALISE", "or":""}]},
       "POWER OFF":      {"type":"http-get", "command":"http://$DeviceIP:$DevicePort/api/v2/", "queryresult":"$.", "evalwrite":[{"variable":"PowerOnStatus", "value":"DYNAMIK \"$Result\" != \"undefined\" ? true : false "},{"variable":"AppIterator", "value":0},{"variable":"RequestedApps", "value":false}], "evaldo":[{"test":"DYNAMIK $PowerOnStatus", "then":"__SENDPWROFF", "or":"__CLEANUP"}]},
       "__SENDPWROFF":   {"type":"webSocket", "command":{"connection":"ws://$DeviceIP:$DevicePort/api/v2/channels/samsung.remote.control?name=$RemoteName", "message":{"method":"ms.remote.control", "params":{"Cmd":"Click", "DataOfCmd":"KEY_POWER",    "Option":"false", "TypeOfRemote":"SendRemoteKey"}}}, "evaldo":[{"test":true, "then":"__CLEANUP", "or":""}] },
-      "__GETAPPS":      {"type":"webSocket", "command":{"connection":"ws://$DeviceIP:$DevicePort/api/v2/channels/samsung.remote.control?name=$RemoteName", "message":{"method":"ms.channel.emit",   "params":{"event": "ed.installedApp.get", "to":"host"}}}, "evalwrite":[{"variable":"RequestedApps", "value":"true"}] },
+      "__GETAPPS":      {"type":"webSocket", "command":{"connection":"ws://$DeviceIP:$DevicePort/api/v2/channels/samsung.remote.control?name=$RemoteName", "message":{"method":"ms.channel.emit",   "params":{"event": "ed.installedApp.get", "to":"host"}}}, "evalwrite":[{"variable":"RequestedApps", "value":"DYNAMIK if (JSON.parse(\"$Result\").readystate!=1) {false} else {true}"}], "evaldo":[{"test":"DYNAMIK if (JSON.parse(\"$Result\").readystate!=1) {true} else {false}","then":"__INITIALISE", "or":""}] },
       "__GETB64ICON":   {"type":"webSocket", "command":"DYNAMIK let req = {\"connection\":\"ws://$DeviceIP:$DevicePort/api/v2/channels/samsung.remote.control?name=$RemoteName\", \"message\":{\"method\":\"ms.channel.emit\", \"params\":{\"event\":\"ed.apps.icon\", \"to\":\"host\", \"data\":{\"iconPath\":$Apps[$AppIterator].icon} }}}; req " },
       "__CHECKICONSERVER":{"type":"http-get", "command":"http://localhost:$IconServerPort/", "queryresult":"", "evalwrite":[{"variable":"IconServerStatus", "value":"DYNAMIK \"$Result\" == \"Not found\" ? true : false "}], "evaldo":[{"test":"DYNAMIK $IconServerStatus == false && $IconServerEnabled == true", "then":"__RUNICONSERVER", "or":""},{"test":true, "then":"__PERSIST", "or":""}]},
       "__RUNICONSERVER":{"type":"static", "command":"DYNAMIK const path = require('path'); const http = require('http'); const fs = require('fs'); const host = '0.0.0.0'; const port = $IconServerPort; const mime = {jpg: 'image/jpeg', png: 'image/png',}; var server = http.createServer((req, res) => {var file = path.join(__dirname, '$IconServerRoot', req.url); var type = mime[path.extname(file).slice(1)] || 'text/plain'; var s = fs.createReadStream(file); s.on('open', () => {res.setHeader('Content-Type', type); s.pipe(res);}); s.on('error', () => {res.setHeader('Content-Type', 'text/plain'); res.response_code = 404; res.end('Not found');});}); server.listen(port, host, () => {console.log('Icon Server running at http://localhost:'+port);}); " },
