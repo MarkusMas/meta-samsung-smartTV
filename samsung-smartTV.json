@@ -1,7 +1,7 @@
 { "name":"smartTV (2016)", 
   "manufacturer":"Samsung",
   "type":"TV",
-  "version":2,
+  "version":3,
   "compatible-meta":"1.0.5",
   "persistedvariables":{
     "ToInitiate":true,
@@ -35,11 +35,12 @@
       "queryresult" : "$.device",
       "evalwrite":[
         {"variable":"NewDevice",    "value":"DYNAMIK let device = $NewDevice; device.model_name = JSON.parse(\"$Result\").modelName; device.mac = JSON.parse(\"$Result\").wifiMac; device.name = JSON.parse(\"$Result\").name; JSON.stringify(device); "},
-        {"variable":"MyDevices",    "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "}
+        {"variable":"MyDevices",    "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "},
+        {"variable":"ToInitiate",   "value":"DYNAMIK let device = $NewDevice; device.model_name != undefined ? false : true"}
       ],			
       "evaldo":[{"test":"DYNAMIK let device = $NewDevice; device.model_name != undefined","then":"__PERSIST", "or":""}]}
       ],
-      "command": {"type": "static", "command": "DYNAMIK let device = $NewDevice; device.model_name != undefined ? device : undefined", "queryresult": "$.*"}    
+      "command": {"type": "static", "command": "$MyDevices", "queryresult": "$.*"}    
   },
   "template":{
     "name":"smartTV (2016)",
