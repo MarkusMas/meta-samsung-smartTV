@@ -1,22 +1,35 @@
 { "name":"smartTV (2016)", 
   "manufacturer":"Samsung",
   "type":"TV",
-  "version":3,
+  "version":4,
   "compatible-meta":"1.0.5",
   "persistedvariables":{
     "ToInitiate":true,
     "IsRegistered": false,
     "MyDevices":"[]"
   },
-	"variables":{
-		"NewDevice":"[]",
+  "variables":{
+	  "NewDevice":"[]",
 	  "DeviceURI": "",
-    "DevicePort":8001
+    "DevicePort":8001,
+    "CheckNew":true
   },
   "register":{
     "registerheadertext": "Samsung smartTV (2016)",
-    "registerdescription": "Please enter the IP address of your device. \n For example: 192.168.178.1 \n Make shure the TV is powered on before proceeding!",
+    "registerdescription": "Please enter the IP address of your device. \n For example: 192.168.178.1 \n Make shure the TV is powered on before proceeding! \n After clicking on \"Verify\", all known devices will be listed. Including any new device that is entered here.",
     "command": {"type": "static", "command": ".", "queryresult": "$.*"}        
+  },
+  "buttons":{
+    "__CHECK":  {"label":"",
+      "type":"http-rest",
+      "command": "{\"verb\":\"get\",\"call\":\"http://$DeviceURI:$DevicePort/api/v2/\"}", 
+      "queryresult" : "$.device",
+      "evalwrite":[
+        {"variable":"NewDevice", "value":"DYNAMIK let device = $NewDevice; device.model_name = JSON.parse(\"$Result\").modelName; device.mac = JSON.parse(\"$Result\").wifiMac; device.name = JSON.parse(\"$Result\").name; JSON.stringify(device); "},
+        {"variable":"MyDevices", "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "}      ],			
+      "evaldo":[{"test":"DYNAMIK let device = $NewDevice; device.model_name != undefined","then":"__PERSIST", "or":""}
+      ]
+    }
   },
   "discover": {
     "welcomeheadertext": "Samsung smartTV (2016)",
@@ -27,24 +40,17 @@
       "command":"$RegistrationCode",
       "queryresult":"",
       "evalwrite":[
-        {"variable":"DeviceURI",    "value":"DYNAMIK \"$Result\" "},
-        {"variable":"NewDevice",    "value":"DYNAMIK let device = {\"ip\":\"\", \"port\":\"\", \"mac\":\"\", \"model_name\":\"\", \"name\":\"\"}; device.ip = \"$Result\"; device.port = $DevicePort; JSON.stringify(device); "}
-      ]},{
-      "type":"http-rest",
-      "command": "{\"verb\":\"get\",\"call\":\"http://$DeviceURI:$DevicePort/api/v2/\"}", 
-      "queryresult" : "$.device",
-      "evalwrite":[
-        {"variable":"NewDevice",    "value":"DYNAMIK let device = $NewDevice; device.model_name = JSON.parse(\"$Result\").modelName; device.mac = JSON.parse(\"$Result\").wifiMac; device.name = JSON.parse(\"$Result\").name; JSON.stringify(device); "},
-        {"variable":"MyDevices",    "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; (device.model_name != undefined ? ((mydevices.findIndex(i=>i.ip==device.ip)==-1) ? mydevices.push(device) : mydevices) : mydevices); JSON.stringify(mydevices); "},
-        {"variable":"ToInitiate",   "value":"DYNAMIK let device = $NewDevice; device.model_name != undefined ? false : true"}
-      ],			
-      "evaldo":[{"test":"DYNAMIK let device = $NewDevice; device.model_name != undefined","then":"__PERSIST", "or":""}]}
+        {"variable":"DeviceURI", "value":"DYNAMIK \"$Result\" "},
+        {"variable":"NewDevice", "value":"DYNAMIK let device = {\"ip\":\"\", \"port\":\"\", \"mac\":\"\", \"model_name\":\"\", \"name\":\"\"}; device.ip = \"$Result\"; device.port = $DevicePort; JSON.stringify(device); "},
+        {"variable":"CheckNew",  "value":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; mydevices.findIndex(i=>i.ip==device.ip)==-1"}
       ],
-      "command": {"type": "static", "command": "$MyDevices", "queryresult": "$.*"}    
+      "evaldo":[{"test":"DYNAMIK let device = $NewDevice; let mydevices = $MyDevices; mydevices.findIndex(i=>i.ip==device.ip)==-1", "then":"__CHECK", "or":""}]
+    }],
+    "command": {"type": "static", "command": "$MyDevices", "queryresult": "$.*"}    
   },
   "template":{
     "name":"smartTV (2016)",
-    "dynamicname":"DYNAMIK_INST_START DYNAMIK \"Samsung \" + JSON.parse(\"$Result\").model_name DYNAMIK_INST_END",
+    "dynamicname":"DYNAMIK_INST_START DYNAMIK $CheckNew ? \"Please refresh list!\" : \"Samsung \" + JSON.parse(\"$Result\").model_name +\" (\"+ JSON.parse(\"$Result\").ip +\") \" DYNAMIK_INST_END",
     "dynamicid":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip DYNAMIK_INST_END",
     "variables":{
       "DeviceIP":  "DYNAMIK_INST_START DYNAMIK JSON.parse(\"$Result\").ip   DYNAMIK_INST_END",
