@@ -8,7 +8,7 @@ The driver in this repository uses a WebSocket connection and some http post req
 
 Further requirement: The IP addresses of your TV must be fixed!
 
-## How to Install a meta-shelly-gen2 Driver
+## How to Install the Samsung SmartTV Driver
 ### a) Installation via meta-core Driver
 0. Start meta-core on the NEEO remote or in the web-UI
 1. Open the directory "Settings"
@@ -84,7 +84,7 @@ Change the Settings of this Driver. The Settings are stored (persisted) per Devi
 ###### Apps
 Customize the app list (seperate directory) by hiding individual apps (for example bloat ware), rearrange the order of the apps or enable/ disable icons in the list (icon server).
 
-Please note, that a local simple http server is created on your device running meta (http://localhost:2016) for making the icons available on the remote. Disable the icon server in the settings if you have any issue with this.
+Please note, that a local simple http server is created on your device running meta (at http://localhost:2016) for making the icons available on the remote. Disable the icon server in the settings if you have any issue with this.
 
 ###### Remote Button: Menu  
 Customize the short and long press of the physical "MENU" button on the remote. Change wether short press or long press is assigned to open open the guide or the SmartHub.
