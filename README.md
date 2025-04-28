@@ -1,5 +1,5 @@
 # meta-samsung-smartTV
-Driver to control Samsung SmartTV from 2016 upwards using meta v2 and the original NEEO remote.
+Driver to control Samsung SmartTV from 2016 upwards using [meta v2](https://github.com/jac459/meta) and the original NEEO remote.
 
 Feel free to support me with some [coffee](https://www.paypal.me/MarkusMas721).
 
