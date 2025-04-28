@@ -112,7 +112,7 @@ I would like to give credit to two repositories that have been very helpful in p
 
 ##### Version 4
 - Bug fixing in registration process and first start/ initialization of driver
-- 
+
 ##### Version 5
 - added support for newer Samsung smartTVs (TVs with "TokenAuthSupport:true" and using Secure WebSocket wss://)
 - added shortcuts for apps "Smart STB" and "Philips Hue Sync"
