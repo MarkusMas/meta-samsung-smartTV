@@ -104,21 +104,15 @@ I would like to give credit to two repositories that have been very helpful in p
 - First release
   
 ##### Version 2
-- Rewritten from the ground up so that the websocket protocol is now used (in preparation to implement authentication).
-- Same features as in version 1.
+- Bug fixing in registration process and first start/ initialization of driver
 
 ##### Version 3
-- added optional usage of authentication.
+- Revert back to the previous solution for the registration process as soluton of verison 2 caused new bugs.
+- (currently only allows one device per driver)
 
 ##### Version 4
-- added optional usage of authentication.
-
+- Bug fixing in registration process and first start/ initialization of driver
+- 
 ##### Version 5
-- added support for neewer TVs using Token Authentication in the background.
-
-
-## Driver Walkthrough for interested Developers (Tutorial)
-If you are an interested developer or user you can have a look at the walkthrough of the driver "Shelly Plus 2PM (Mode: Switch)" in Version 1 i created. In this [tutorial](https://github.com/MarkusMas/meta-shelly-gen2/blob/main/tutorial/shelly-plus-2pm_switch_v1_tutorial.md) i am going through all the details of the driver.
-
-## ToDos
-- Add "digest authentication" so password protected Shellys can be used.
+- added support for newer Samsung smartTVs (TVs with "TokenAuthSupport:true" and using Secure WebSocket wss://)
+- added shortcuts for apps "Smart STB" and "Philips Hue Sync"
