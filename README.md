@@ -139,7 +139,7 @@ The response in the browser should look similar to this:
 </details>
 
 The TV is considered compatible if the response of the request was obtained and:
-1. a value for "model_name" exists.
+1. a value for "modelName" exists.
 2. the value "wifiMAC" holds a valid mac adress* (is not "none").
 
 *needed to power on the TV which is done via wake on LAN.
