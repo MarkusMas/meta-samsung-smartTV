@@ -5,8 +5,9 @@ Feel free to support me with some [coffee](https://www.paypal.me/MarkusMas721).
 
 ### Device Compatibility
 The driver in this repository uses a WebSocket connection and some http post requests to communicate with the TV. The compatibility of your TV is automatically checked during step 12 of the instructions below.
+Further requirement: The IP addresses of your TV must be fixed!\
 
-Further requirement: The IP addresses of your TV must be fixed!
+You can also perform a manual check using just a browser. For that refer to the chapter [Manual compatability check](#manual-compatability-check).
 
 ## How to Install the Samsung SmartTV Driver
 ### a) Installation via meta-core Driver
@@ -76,7 +77,7 @@ And for buttons i found [this page](https://github.com/jaruba/ha-samsungtv-tizen
 #### Directory "Apps"
 Shows a list of the available apps. Selecting an app will launch it. The list can be modified using the directory "settings".
 
-This feature is only available on the older TVs without `"TokenAuthSupport": "true"` [Link](#token-authentication-dor-developers).
+This feature is only available on the older TVs without `"TokenAuthSupport": "true"` [Link](#token-authentication-for-developers).
 
 #### Directory "Settings"
 Change the Settings of this Driver. The Settings are stored (persisted) per Device. The following Options are available:
@@ -89,10 +90,60 @@ Please note, that a local simple http server is created on your device running m
 ###### Remote Button: Menu  
 Customize the short and long press of the physical "MENU" button on the remote. Change wether short press or long press is assigned to open open the guide or the SmartHub.
 
-### Token-Authentication (For Developers)
-Using a browser you can have a look at `http://<tv-ip>:8001/api/v2/`.\
-This request is performed during the setup of the TV (Step 12).
+### Manual compatability check 
+Using a browser you can have a look at `http://<tv-ip>:8001/api/v2/`.
 
+This request is also performed during the setup of the TV (Step 12).
+
+The response in the browser should look similar to this:
+
+<details>
+  <summary>click here to open response:</summary>
+
+```json
+{
+  "id": "uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "name": "[TV] Samsung 9 Series (55)",
+  "version": "2.1.0",
+  "device": {
+    "type": "Samsung SmartTV",
+    "duid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "model": "16_JAZZM_UHD",
+    "modelName": "UE55KS9090",
+    "description": "Samsung DTV RCR",
+    "networkType": "wired",
+    "ssid": "",
+    "ip": "10.25.20.41",
+    "firmwareVersion": "Unknown",
+    "name": "[TV] Samsung 9 Series (55)",
+    "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "udn": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "resolution": "3840x2160",
+    "countryCode": "DE",
+    "msfVersion": "2.1.0",
+    "smartHubAgreement": "true",
+    "VoiceSupport": "true",
+    "GamePadSupport": "true",
+    "wifiMac": "xx:xx:xx:xx:xx:xx",
+    "developerMode": "0",
+    "developerIP": "",
+    "OS": "Tizen"
+  },
+  "type": "Samsung SmartTV",
+  "uri": "http://10.25.20.41:8001/api/v2/",
+  "remote": "1.0",
+  "isSupport": "{\"remote_available\":\"true\",\"remote_fourDirections\":\"true\",\"remote_touchPad\":\"true\",\"remote_voiceControl\":\"true\",\"DMP_available\":\"true\",\"DMP_DRM_PLAYREADY\":\"false\",\"DMP_DRM_WIDEVINE\":\"false\",\"EDEN_available\":\"true\"}"
+}
+```
+</details>
+
+The TV is considered compatible if the response of the request was obtained and:
+1. a value for "model_name" exists.
+2. the value "wifiMAC" holds a valid mac adress* (is not "none").
+
+*needed to power on the TV which is done via wake on LAN.
+
+#### Token-Authentication (For Developers)
 Until version 4 of this driver, only devices were supportet that did not contain `"TokenAuthSupport": "true"` in the response to the aforementioned request. With version 5, essential parts of the driver were rewritten to enable the authentication with token. This essentially involves the use of secure websocket (wss://) for newer devices, while websocket (ws://) is still used for older devices.
 
 I would like to give credit to two repositories that have been very helpful in providing a resource with a working wss implementation for the development of version 5:
@@ -116,3 +167,9 @@ I would like to give credit to two repositories that have been very helpful in p
 ##### Version 5
 - added support for newer Samsung smartTVs (TVs with "TokenAuthSupport:true" and using Secure WebSocket wss://)
 - added shortcuts for apps "Smart STB" and "Philips Hue Sync"
+
+##### Version 6
+- changed the  
+- changed "dynamicid" to use the mac address of the device instead of the ip address.
+- UPDATING TO VERISON 6 REQUIRES TO DELETE* ALL SAMSUNG SMART TV's FROM YOUR NEEO SYSTEM AND REINSTALL THEM.
+*Open the NEEO App or the web-UI and go to: "Devices" > select device > "Delete"; Then follow the [installation instructions](#a-Installation-via-meta-core-Driver) at Step 8.
