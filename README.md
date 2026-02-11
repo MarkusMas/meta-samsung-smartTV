@@ -5,7 +5,8 @@ Feel free to support me with some [coffee](https://www.paypal.me/MarkusMas721).
 
 ### Device Compatibility
 The driver in this repository uses a WebSocket connection and some http post requests to communicate with the TV. The compatibility of your TV is automatically checked during step 12 of the instructions below.
-Further requirement: The IP addresses of your TV must be fixed!\
+
+Further requirement: The IP addresses of your TV must be fixed!
 
 You can also perform a manual check using just a browser. For that refer to the chapter [Manual compatability check](#manual-compatability-check).
 
