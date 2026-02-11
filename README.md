@@ -171,7 +171,8 @@ I would like to give credit to two repositories that have been very helpful in p
 
 ##### Version 6
 - Changed the value used for identification of the device in the communication between NEEO SDK and meta. From version 6 the the mac address of the device is used for the "dynamicid" (instead of the ip address).
-- This update does not add any futher features or bug fixes.
+- Minor bug fix: in some rare cases an app icon (image) whould not show up in the directory "apps" due to special characters in the app name.
+- This update does not add any futher features.
 - UPDATING TO VERISON 6 REQUIRES TO DELETE* ALL SAMSUNG SMART TV's FROM YOUR NEEO SYSTEM AND REINSTALL THEM.
 
 *Open the NEEO App or the web-UI and go to: "Devices" > select device > "Delete"; Then follow the [installation instructions](#a-Installation-via-meta-core-Driver) at Step 8.
