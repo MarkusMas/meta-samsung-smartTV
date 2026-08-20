@@ -175,4 +175,7 @@ I would like to give credit to two repositories that have been very helpful in p
 - This update does not add any futher features.
 - UPDATING TO VERISON 6 REQUIRES TO DELETE* ALL SAMSUNG SMART TV's FROM YOUR NEEO SYSTEM AND REINSTALL THEM.
 
+##### Version 7
+- added commands to open app: Smart STB+
+
 *Open the NEEO App or the web-UI and go to: "Devices" > select device > "Delete"; Then follow the [installation instructions](#a-Installation-via-meta-core-Driver) at Step 8.
